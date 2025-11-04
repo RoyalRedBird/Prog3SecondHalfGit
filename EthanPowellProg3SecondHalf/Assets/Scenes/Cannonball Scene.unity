@@ -739,7 +739,7 @@ GameObject:
   - component: {fileID: 1591692927}
   m_Layer: 5
   m_Name: Scoreboard
-  m_TagString: Ship
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -877,7 +877,7 @@ MonoBehaviour:
   leftCannon: {fileID: 6443999}
   rightCannon: {fileID: 1685397580}
   cannonballPrefab: {fileID: 8214065686384112071, guid: 44074452453c295498f805cf7a408f27, type: 3}
-  cannonballForce: 50
+  cannonballForce: 30
 --- !u!4 &1800028000
 Transform:
   m_ObjectHideFlags: 0
@@ -908,7 +908,7 @@ GameObject:
   - component: {fileID: 1934803983}
   m_Layer: 0
   m_Name: Pirate Ship Target
-  m_TagString: Untagged
+  m_TagString: Ship
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
