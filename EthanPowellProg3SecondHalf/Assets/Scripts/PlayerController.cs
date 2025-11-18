@@ -65,17 +65,41 @@ public class PlayerController : MonoBehaviour
             if (velocity.x > 0)
             {
 
-                velocity.x -= (decelSpeed / decelTime) * Time.deltaTime;
+                if(velocity.x - ((decelSpeed / decelTime) * Time.deltaTime) <= 0)
+                {
+
+                    velocity.x = 0;
+
+                }
+                else
+                {
+
+                    velocity.x -= (decelSpeed / decelTime) * Time.deltaTime;
+
+                }
 
             }
             else if (velocity.x < 0)
             {
 
-                velocity.x += (decelSpeed / decelTime) * Time.deltaTime;
+                if (velocity.x + ((decelSpeed / decelTime) * Time.deltaTime) >= 0)
+                {
+
+                    velocity.x = 0;
+
+                }
+                else
+                {
+
+                    velocity.x += (decelSpeed / decelTime) * Time.deltaTime;
+
+                }
 
             }
 
         }
+
+        velocity.x = Mathf.Clamp(velocity.x, -(MaxSpeed), MaxSpeed);
 
         transform.position += velocity;
 
