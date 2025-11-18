@@ -1701,9 +1701,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 86a1ce42ea3e3dd44868493ae73ec06d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxSpeed: 0.03
-  accellTime: 0.15
-  decelSpeed: 0.03
+  MaxSpeed: 0.2
+  accellTime: 0.25
+  decelSpeed: 0.2
   decelTime: 0.15
   velocity: {x: 0, y: 0, z: 0}
 --- !u!4 &1433354315

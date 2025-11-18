@@ -22,26 +22,45 @@ public class PlayerController : MonoBehaviour
         
     }
 
-    void Update()
+    void FixedUpdate()
     {
         // The input from the player needs to be determined and
         // then passed in the to the MovementUpdate which should
         // manage the actual movement of the character.
-        //Vector2 playerInput = new Vector2();
+        Vector2 playerInput = new Vector2();
 
-        MovementUpdate();
+        if (Input.GetKey(KeyCode.LeftArrow))
+        {
+
+            playerInput.x = -1;
+            moveKeyDown = true;
+            lastKeyPressed = KeyCode.LeftArrow;
+
+        }
+
+        if (Input.GetKey(KeyCode.RightArrow))
+        {
+
+            playerInput.x = 1;
+            moveKeyDown = true;
+            lastKeyPressed = KeyCode.RightArrow;
+
+        }
+
+
+        MovementUpdate(playerInput);
         IsWalking();
         IsGrounded();
         GetFacingDirection();
 
     }
 
-    private void MovementUpdate()
+    private void MovementUpdate(Vector2 playerInput)
     {
 
         moveKeyDown = false;
 
-        if (Input.GetKey(KeyCode.LeftArrow))
+        if (playerInput.x < 0)
         {
 
             velocity.x -= (MaxSpeed / accellTime) * Time.deltaTime;
@@ -50,7 +69,7 @@ public class PlayerController : MonoBehaviour
 
         }
 
-        if (Input.GetKey(KeyCode.RightArrow))
+        if (playerInput.x > 0)
         {
 
             velocity.x += (MaxSpeed / accellTime) * Time.deltaTime;
