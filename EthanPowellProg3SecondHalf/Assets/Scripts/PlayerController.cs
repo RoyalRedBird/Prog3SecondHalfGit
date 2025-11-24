@@ -8,7 +8,17 @@ public class PlayerController : MonoBehaviour
     public float accellTime;
     public float decelSpeed;
     public float decelTime;
+    public float apexHeight;
+    public float apexTime;
+    public float jumpForce;
+    public float groundCheckOffTime;
+    public float groundCheckOffTimeCurrent;
+    public float coyoteTime;
+    public float coyoteTimeCurrent;
+    public float terminalVelocity;
     [SerializeField] Vector3 velocity = Vector3.zero;
+
+    public LayerMask groundLayer;
 
     KeyCode lastKeyPressed = KeyCode.LeftArrow;
 
@@ -27,14 +37,12 @@ public class PlayerController : MonoBehaviour
         // The input from the player needs to be determined and
         // then passed in the to the MovementUpdate which should
         // manage the actual movement of the character.
-        Vector2 playerInput = new Vector2();
+        Vector2 playerInput = new Vector2();       
 
         if (Input.GetKey(KeyCode.LeftArrow))
         {
 
             playerInput.x = -1;
-            moveKeyDown = true;
-            lastKeyPressed = KeyCode.LeftArrow;
 
         }
 
@@ -42,16 +50,39 @@ public class PlayerController : MonoBehaviour
         {
 
             playerInput.x = 1;
-            moveKeyDown = true;
-            lastKeyPressed = KeyCode.RightArrow;
+
 
         }
 
+        if (groundCheckOffTimeCurrent > 0)
+        {
+            groundCheckOffTimeCurrent -= Time.deltaTime;
+        }
+        else
+        {
+           
+            groundCheckOffTimeCurrent = 0;
+        }
+
+        if (Input.GetKeyDown(KeyCode.UpArrow) && IsGrounded())
+        {
+
+            playerInput.y = 1;
+            groundCheckOffTimeCurrent = groundCheckOffTime;
+
+        }
 
         MovementUpdate(playerInput);
         IsWalking();
-        IsGrounded();
         GetFacingDirection();
+        IsGrounded();
+
+        if (coyoteTimeCurrent > 0)
+        {
+
+            coyoteTime -= Time.deltaTime;
+
+        }
 
     }
 
@@ -59,6 +90,9 @@ public class PlayerController : MonoBehaviour
     {
 
         moveKeyDown = false;
+
+        float gravity = -2 * apexHeight / (apexTime * apexTime);
+        float jumpVel = 2 * apexHeight / apexTime;
 
         if (playerInput.x < 0)
         {
@@ -75,6 +109,13 @@ public class PlayerController : MonoBehaviour
             velocity.x += (MaxSpeed / accellTime) * Time.deltaTime;
             moveKeyDown = true;
             lastKeyPressed = KeyCode.RightArrow;
+
+        }
+
+        if (playerInput.y > 0)
+        {
+
+            velocity.y = jumpVel;
 
         }
 
@@ -119,6 +160,14 @@ public class PlayerController : MonoBehaviour
         }
 
         velocity.x = Mathf.Clamp(velocity.x, -(MaxSpeed), MaxSpeed);
+        velocity.y += gravity * Time.deltaTime;
+
+        if (IsGrounded())
+        {
+
+            velocity.y = 0;
+
+        }
 
         transform.position += velocity;
 
@@ -137,9 +186,31 @@ public class PlayerController : MonoBehaviour
 
         
     }
+
     public bool IsGrounded()
     {
-        return true;
+
+        //Physics2D.BoxCast(transform.position, Vector2.one * 0.9f, 0f, (Vector3.down * 0.4f) + transform.position, groundLayer);
+
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, transform.position + Vector3.down * 0.8f, groundLayer);
+
+        if (hit) 
+        {
+
+            Debug.DrawLine(transform.position, (Vector3.down * 0.8f) + transform.position, Color.green);
+            print("I am grounded.");
+            return true;
+
+        }
+        else
+        {
+
+            Debug.DrawLine(transform.position, (Vector3.down * 0.8f) + transform.position);
+            print("I am not grounded.");
+            return false;
+
+        }        
+
     }
 
     public FacingDirection GetFacingDirection()
