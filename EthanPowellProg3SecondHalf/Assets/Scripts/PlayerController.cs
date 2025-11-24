@@ -10,15 +10,15 @@ public class PlayerController : MonoBehaviour
     public float decelTime;
     public float apexHeight;
     public float apexTime;
-    public float jumpForce;
-    public float groundCheckOffTime;
-    public float groundCheckOffTimeCurrent;
+    public float jumpDelayTime;
+    public float jumpDelayTimeCurrent;
     public float coyoteTime;
     public float coyoteTimeCurrent;
     public float terminalVelocity;
     [SerializeField] Vector3 velocity = Vector3.zero;
 
     public LayerMask groundLayer;
+    public bool canJump;
 
     KeyCode lastKeyPressed = KeyCode.LeftArrow;
 
@@ -54,21 +54,13 @@ public class PlayerController : MonoBehaviour
 
         }
 
-        if (groundCheckOffTimeCurrent > 0)
-        {
-            groundCheckOffTimeCurrent -= Time.deltaTime;
-        }
-        else
-        {
-           
-            groundCheckOffTimeCurrent = 0;
-        }
-
-        if (Input.GetKeyDown(KeyCode.UpArrow) && IsGrounded())
+        if (Input.GetKey(KeyCode.UpArrow) && CanJump() && jumpDelayTimeCurrent <= 0)
         {
 
             playerInput.y = 1;
-            groundCheckOffTimeCurrent = groundCheckOffTime;
+            print("Boing.");
+            jumpDelayTimeCurrent = jumpDelayTime;
+            coyoteTimeCurrent = 0;
 
         }
 
@@ -76,13 +68,16 @@ public class PlayerController : MonoBehaviour
         IsWalking();
         GetFacingDirection();
         IsGrounded();
+        CanJump();
 
         if (coyoteTimeCurrent > 0)
         {
 
-            coyoteTime -= Time.deltaTime;
+            coyoteTimeCurrent -= Time.deltaTime;
 
         }
+
+        jumpDelayTimeCurrent -= Time.deltaTime;
 
     }
 
@@ -162,12 +157,18 @@ public class PlayerController : MonoBehaviour
         velocity.x = Mathf.Clamp(velocity.x, -(MaxSpeed), MaxSpeed);
         velocity.y += gravity * Time.deltaTime;
 
-        if (IsGrounded())
+        if (playerInput.y == 0)
         {
 
-            velocity.y = 0;
+            if (IsGrounded() && velocity.y < 0)
+            {
+
+                velocity.y = 0;
+
+            }
 
         }
+     
 
         if(velocity.y <= -terminalVelocity)
         {
@@ -197,26 +198,42 @@ public class PlayerController : MonoBehaviour
     public bool IsGrounded()
     {
 
-        //Physics2D.BoxCast(transform.position, Vector2.one * 0.9f, 0f, (Vector3.down * 0.4f) + transform.position, groundLayer);
-
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, transform.position + Vector3.down * 0.8f, groundLayer);
-
-        if (hit) 
+        if (Physics2D.BoxCast(transform.position, Vector2.one * 0.8f, 0f, Vector3.down, 0.5f, groundLayer)) 
         {
 
             Debug.DrawLine(transform.position, (Vector3.down * 0.8f) + transform.position, Color.green);
-            print("I am grounded.");
+            canJump = true;
+            coyoteTimeCurrent = coyoteTime;
             return true;
 
         }
         else
         {
 
-            Debug.DrawLine(transform.position, (Vector3.down * 0.8f) + transform.position);
-            print("I am not grounded.");
+            Debug.DrawLine(transform.position, (Vector3.down * 0.8f) + transform.position, Color.red);
+            coyoteTimeCurrent -= Time.deltaTime;
             return false;
 
         }        
+
+    }
+
+    public bool CanJump()
+    {
+
+        if(!IsGrounded() && coyoteTimeCurrent > 0)
+        {
+
+            return true;
+
+        }else if (IsGrounded())
+        {
+
+            return true;
+
+        }
+
+        return false;
 
     }
 
