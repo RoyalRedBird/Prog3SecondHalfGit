@@ -169,6 +169,13 @@ public class PlayerController : MonoBehaviour
 
         }
 
+        if(velocity.y <= -terminalVelocity)
+        {
+
+            velocity.y = -terminalVelocity;
+
+        }
+
         transform.position += velocity;
 
     }
