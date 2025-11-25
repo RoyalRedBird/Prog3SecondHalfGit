@@ -27,6 +27,13 @@ public class PlayerController : MonoBehaviour
         left, right
     }
 
+    public enum CharacterState
+    {
+
+        Idle, Walking, Jumping, Dead
+
+    }
+
     void Start()
     {
         
