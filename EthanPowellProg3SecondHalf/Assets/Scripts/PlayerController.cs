@@ -89,6 +89,13 @@ public class PlayerController : MonoBehaviour
         float gravity = -2 * apexHeight / (apexTime * apexTime);
         float jumpVel = 2 * apexHeight / apexTime;
 
+        if (playerInput.y > 0)
+        {
+
+            velocity.y = jumpVel;
+
+        }
+
         if (playerInput.x < 0)
         {
 
@@ -105,14 +112,7 @@ public class PlayerController : MonoBehaviour
             moveKeyDown = true;
             lastKeyPressed = KeyCode.RightArrow;
 
-        }
-
-        if (playerInput.y > 0)
-        {
-
-            velocity.y = jumpVel;
-
-        }
+        }      
 
         if (!moveKeyDown)
         {
