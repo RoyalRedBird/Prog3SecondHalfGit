@@ -69,6 +69,7 @@ public class PlayerController : MonoBehaviour
         GetFacingDirection();
         IsGrounded();
         CanJump();
+        HitHeadCheck();
 
         if (coyoteTimeCurrent > 0)
         {
@@ -99,7 +100,7 @@ public class PlayerController : MonoBehaviour
         if (playerInput.x < 0)
         {
 
-            velocity.x -= (MaxSpeed / accellTime) * Time.deltaTime;
+            velocity.x -= (MaxSpeed / accellTime) * Time.fixedDeltaTime;
             moveKeyDown = true;
             lastKeyPressed = KeyCode.LeftArrow;
 
@@ -108,7 +109,7 @@ public class PlayerController : MonoBehaviour
         if (playerInput.x > 0)
         {
 
-            velocity.x += (MaxSpeed / accellTime) * Time.deltaTime;
+            velocity.x += (MaxSpeed / accellTime) * Time.fixedDeltaTime;
             moveKeyDown = true;
             lastKeyPressed = KeyCode.RightArrow;
 
@@ -120,7 +121,7 @@ public class PlayerController : MonoBehaviour
             if (velocity.x > 0)
             {
 
-                if(velocity.x - ((decelSpeed / decelTime) * Time.deltaTime) <= 0)
+                if(velocity.x - ((decelSpeed / decelTime) * Time.fixedDeltaTime) <= 0)
                 {
 
                     velocity.x = 0;
@@ -129,7 +130,7 @@ public class PlayerController : MonoBehaviour
                 else
                 {
 
-                    velocity.x -= (decelSpeed / decelTime) * Time.deltaTime;
+                    velocity.x -= (decelSpeed / decelTime) * Time.fixedDeltaTime;
 
                 }
 
@@ -137,7 +138,7 @@ public class PlayerController : MonoBehaviour
             else if (velocity.x < 0)
             {
 
-                if (velocity.x + ((decelSpeed / decelTime) * Time.deltaTime) >= 0)
+                if (velocity.x + ((decelSpeed / decelTime) * Time.fixedDeltaTime) >= 0)
                 {
 
                     velocity.x = 0;
@@ -146,7 +147,7 @@ public class PlayerController : MonoBehaviour
                 else
                 {
 
-                    velocity.x += (decelSpeed / decelTime) * Time.deltaTime;
+                    velocity.x += (decelSpeed / decelTime) * Time.fixedDeltaTime;
 
                 }
 
@@ -155,7 +156,7 @@ public class PlayerController : MonoBehaviour
         }
 
         velocity.x = Mathf.Clamp(velocity.x, -(MaxSpeed), MaxSpeed);
-        velocity.y += gravity * Time.deltaTime;
+        velocity.y += gravity * Time.fixedDeltaTime;
 
         if (playerInput.y == 0)
         {
@@ -198,7 +199,7 @@ public class PlayerController : MonoBehaviour
     public bool IsGrounded()
     {
 
-        if (Physics2D.BoxCast(transform.position, Vector2.one * 0.8f, 0f, Vector3.down, 0.5f, groundLayer)) 
+        if (Physics2D.BoxCast(transform.position, Vector2.one * 0.8f, 0f, Vector3.down, 0.27f, groundLayer)) 
         {
 
             Debug.DrawLine(transform.position, (Vector3.down * 0.8f) + transform.position, Color.green);
@@ -215,6 +216,18 @@ public class PlayerController : MonoBehaviour
             return false;
 
         }        
+
+    }
+
+    private void HitHeadCheck()
+    {
+
+        if (Physics2D.BoxCast(transform.position, Vector2.one * 0.8f, 0f, Vector3.up, 0.27f, groundLayer))
+        {
+
+            velocity.y = 0;
+
+        }
 
     }
 
