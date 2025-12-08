@@ -22,6 +22,17 @@ public class PlayerController : MonoBehaviour
 
     KeyCode lastKeyPressed = KeyCode.LeftArrow;
 
+    public bool isDashing;
+    public float dashSpeed;
+    public float dashTime = 0.2f;
+    public float dashTimeCurrent;
+    public float dashTimeHorizontalModifier;
+    public bool canDash;
+    public Vector3 dashDirection;
+
+    public float wallJumpTimer;
+    public float wallJumpTimerCurrent;
+
     public enum FacingDirection
     {
         left, right
@@ -71,12 +82,58 @@ public class PlayerController : MonoBehaviour
 
         }
 
+        if (Input.GetKey(KeyCode.Q) && canDash && !isDashing)
+        {
+
+            isDashing = true;
+            canDash = false;
+            Vector3 newDashVector = new Vector3();
+
+            RaycastHit2D hitRight = Physics2D.Raycast(transform.position, Vector3.right, 1f, groundLayer);
+            RaycastHit2D hitLeft = Physics2D.Raycast(transform.position, Vector3.left, 1f, groundLayer);
+
+            newDashVector.x = playerInput.x;
+
+            if (newDashVector.x > 0 && hitRight)
+            {
+
+                newDashVector.x = 0;
+
+            }
+
+            if (newDashVector.x < 0 && hitLeft)
+            {
+
+                newDashVector.x = 0;
+
+            }
+
+            dashTimeCurrent = dashTime;
+
+            if (Input.GetKey(KeyCode.UpArrow))
+            {
+
+                newDashVector.y = 1;
+
+            }
+
+            if(newDashVector.y == 0)
+            {
+
+                dashTimeCurrent = dashTime * dashTimeHorizontalModifier;
+
+            }
+
+            dashDirection = newDashVector;
+
+        }
+
         MovementUpdate(playerInput);
         IsWalking();
         GetFacingDirection();
         IsGrounded();
         CanJump();
-        HitHeadCheck();
+        HitHeadCheck();                
 
         if (coyoteTimeCurrent > 0)
         {
@@ -101,6 +158,39 @@ public class PlayerController : MonoBehaviour
         {
 
             velocity.y = jumpVel;
+
+        }
+
+        RaycastHit2D hitRight = Physics2D.Raycast(transform.position, Vector3.right, 1f, groundLayer);
+        RaycastHit2D hitLeft = Physics2D.Raycast(transform.position, Vector3.left, 1f, groundLayer);
+
+        if (hitRight)
+        {
+
+            Debug.DrawLine(transform.position, transform.position + Vector3.right, Color.blue);
+
+            if (Input.GetKey(KeyCode.UpArrow))
+            {
+
+                velocity.y = jumpVel;
+                velocity.x = -MaxSpeed;
+
+            }
+
+        }
+
+        if (hitLeft)
+        {
+
+            Debug.DrawLine(transform.position, transform.position + Vector3.left, Color.green);
+
+            if (Input.GetKey(KeyCode.UpArrow))
+            {
+
+                velocity.y = jumpVel;
+                velocity.x = MaxSpeed;
+
+            }
 
         }
 
@@ -185,6 +275,28 @@ public class PlayerController : MonoBehaviour
 
         }
 
+        if (velocity.y > terminalVelocity) { 
+        
+            velocity.y = terminalVelocity;
+        
+        }
+
+        if (isDashing)
+        {
+
+            DashMove();
+            dashTimeCurrent -= Time.fixedDeltaTime;
+
+
+        }       
+
+        if(isDashing && dashTimeCurrent <= 0)
+        {
+
+            isDashing = false;
+
+        }
+
         transform.position += velocity;
 
     }
@@ -211,6 +323,7 @@ public class PlayerController : MonoBehaviour
 
             Debug.DrawLine(transform.position, (Vector3.down * 0.8f) + transform.position, Color.green);
             canJump = true;
+            canDash = true;
             coyoteTimeCurrent = coyoteTime;
             return true;
 
@@ -276,4 +389,25 @@ public class PlayerController : MonoBehaviour
         return FacingDirection.left;
 
     }
+
+    public void DashMove()
+    {
+
+        if(dashTimeCurrent >= dashTime)
+        {
+
+            velocity.x += dashDirection.x * dashSpeed;
+            velocity.y += dashDirection.y * dashSpeed;
+
+        }
+
+    }
+
+    public void WallJump(float launchDir, float jumpForce)
+    {
+
+
+
+    }
+
 }
