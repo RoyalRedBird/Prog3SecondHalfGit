@@ -3330,6 +3330,9 @@ MonoBehaviour:
   dashDirection: {x: 0, y: 0, z: 0}
   wallJumpTimer: 0
   wallJumpTimerCurrent: 0
+  teleBall: {fileID: 658270311030619337, guid: 61c5bbb61d950d54ca5163c56574c9d7, type: 3}
+  activeTeleBall: {fileID: 0}
+  throwForce: 0.3
 --- !u!4 &1433354315
 Transform:
   m_ObjectHideFlags: 0

@@ -33,6 +33,10 @@ public class PlayerController : MonoBehaviour
     public float wallJumpTimer;
     public float wallJumpTimerCurrent;
 
+    public GameObject teleBall;
+    public GameObject activeTeleBall;
+    public float throwForce;
+
     public enum FacingDirection
     {
         left, right
@@ -57,14 +61,14 @@ public class PlayerController : MonoBehaviour
         // manage the actual movement of the character.
         Vector2 playerInput = new Vector2();       
 
-        if (Input.GetKey(KeyCode.LeftArrow))
+        if (Input.GetKey(KeyCode.A))
         {
 
             playerInput.x = -1;
 
         }
 
-        if (Input.GetKey(KeyCode.RightArrow))
+        if (Input.GetKey(KeyCode.D))
         {
 
             playerInput.x = 1;
@@ -72,7 +76,7 @@ public class PlayerController : MonoBehaviour
 
         }
 
-        if (Input.GetKey(KeyCode.UpArrow) && CanJump() && jumpDelayTimeCurrent <= 0)
+        if (Input.GetKey(KeyCode.W) && CanJump() && jumpDelayTimeCurrent <= 0)
         {
 
             playerInput.y = 1;
@@ -82,7 +86,7 @@ public class PlayerController : MonoBehaviour
 
         }
 
-        if (Input.GetKey(KeyCode.Q) && canDash && !isDashing)
+        if (Input.GetKey(KeyCode.Space) && canDash && !isDashing)
         {
 
             isDashing = true;
@@ -110,7 +114,7 @@ public class PlayerController : MonoBehaviour
 
             dashTimeCurrent = dashTime;
 
-            if (Input.GetKey(KeyCode.UpArrow))
+            if (Input.GetKey(KeyCode.W))
             {
 
                 newDashVector.y = 1;
@@ -133,7 +137,8 @@ public class PlayerController : MonoBehaviour
         GetFacingDirection();
         IsGrounded();
         CanJump();
-        HitHeadCheck();                
+        HitHeadCheck();
+        BallThrow();
 
         if (coyoteTimeCurrent > 0)
         {
@@ -169,7 +174,7 @@ public class PlayerController : MonoBehaviour
 
             Debug.DrawLine(transform.position, transform.position + Vector3.right, Color.blue);
 
-            if (Input.GetKey(KeyCode.UpArrow))
+            if (Input.GetKey(KeyCode.W))
             {
 
                 velocity.y = jumpVel;
@@ -184,7 +189,7 @@ public class PlayerController : MonoBehaviour
 
             Debug.DrawLine(transform.position, transform.position + Vector3.left, Color.green);
 
-            if (Input.GetKey(KeyCode.UpArrow))
+            if (Input.GetKey(KeyCode.W))
             {
 
                 velocity.y = jumpVel;
@@ -199,7 +204,7 @@ public class PlayerController : MonoBehaviour
 
             velocity.x -= (MaxSpeed / accellTime) * Time.fixedDeltaTime;
             moveKeyDown = true;
-            lastKeyPressed = KeyCode.LeftArrow;
+            lastKeyPressed = KeyCode.A;
 
         }
 
@@ -208,7 +213,7 @@ public class PlayerController : MonoBehaviour
 
             velocity.x += (MaxSpeed / accellTime) * Time.fixedDeltaTime;
             moveKeyDown = true;
-            lastKeyPressed = KeyCode.RightArrow;
+            lastKeyPressed = KeyCode.D;
 
         }      
 
@@ -373,13 +378,13 @@ public class PlayerController : MonoBehaviour
     public FacingDirection GetFacingDirection()
     {
 
-        if(lastKeyPressed == KeyCode.LeftArrow)
+        if(lastKeyPressed == KeyCode.A)
         {
 
             return FacingDirection.left;
 
         }
-        else if(lastKeyPressed == KeyCode.RightArrow)
+        else if(lastKeyPressed == KeyCode.D)
         {
 
             return FacingDirection.right;
@@ -403,10 +408,70 @@ public class PlayerController : MonoBehaviour
 
     }
 
-    public void WallJump(float launchDir, float jumpForce)
+    public void BallThrow()
     {
 
+        Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 position2D = transform.position;
 
+        Vector2 transformToMousePos = (position2D - mousePos).normalized;
+
+        Debug.DrawLine(transform.position, position2D - transformToMousePos, Color.yellow);
+
+        if (Input.GetMouseButton(0) && activeTeleBall == null)
+        {
+
+            activeTeleBall = GameObject.Instantiate(teleBall, transform.position, Quaternion.identity);
+
+            TeleBallScript tbScript = activeTeleBall.GetComponent<TeleBallScript>();
+
+            tbScript.InitializeBall(-(transformToMousePos * throwForce), 5);
+
+        }
+
+        if (Input.GetMouseButton(1) && activeTeleBall != null)
+        {
+
+            Vector2 teleportPos = activeTeleBall.transform.position;
+
+            RaycastHit2D hitRight = Physics2D.Raycast(transform.position, Vector3.right, 1f, groundLayer);
+            RaycastHit2D hitLeft = Physics2D.Raycast(transform.position, Vector3.left, 1f, groundLayer);
+            RaycastHit2D hitTop = Physics2D.Raycast(transform.position, Vector3.up, 1f, groundLayer);
+            RaycastHit2D hitBottom = Physics2D.Raycast(transform.position, Vector3.down, 1f, groundLayer);
+
+            if (hitRight)
+            {
+
+                teleportPos.x -= 1;
+
+            }
+
+            if (hitLeft)
+            {
+
+                teleportPos.x += 1;
+
+            }
+
+            if (hitTop)
+            {
+
+                teleportPos.y -= 1;
+
+            }
+
+            if (hitBottom)
+            {
+
+                teleportPos.y += 1;
+
+            }
+
+            transform.position = teleportPos;
+
+            Destroy(activeTeleBall);
+
+        }        
 
     }
 
