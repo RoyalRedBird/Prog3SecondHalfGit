@@ -13,14 +13,17 @@ public class TeleBallScript : MonoBehaviour
     void FixedUpdate()
     {
 
+        //Constant application of gravity and velocity.
         velocity.y -= ballGravity;
         transform.position += velocity;
 
+        //Raycasts to check for collisions.
         RaycastHit2D hitRight = Physics2D.Raycast(transform.position, Vector3.right, 0.25f, groundLayer);
         RaycastHit2D hitLeft = Physics2D.Raycast(transform.position, Vector3.left, 0.25f, groundLayer);
         RaycastHit2D hitTop = Physics2D.Raycast(transform.position, Vector3.up, 0.25f, groundLayer);
         RaycastHit2D hitBottom = Physics2D.Raycast(transform.position, Vector3.down, 0.25f, groundLayer);
 
+        //Vertical bouncing.
         if (hitTop || hitBottom)
         {
 
@@ -28,6 +31,7 @@ public class TeleBallScript : MonoBehaviour
 
         }
 
+        //Horizontal bouncing.
         if(hitLeft || hitRight)
         {
 
@@ -37,6 +41,7 @@ public class TeleBallScript : MonoBehaviour
 
         lifeTimer -= Time.fixedDeltaTime;
 
+        //Kill the ball if it runs out of time.
         if(lifeTimer <= 0)
         {
 
@@ -46,6 +51,7 @@ public class TeleBallScript : MonoBehaviour
 
     }
 
+    //Initialize the ball.
     public void InitializeBall(Vector2 vel, float timer)
     {
 

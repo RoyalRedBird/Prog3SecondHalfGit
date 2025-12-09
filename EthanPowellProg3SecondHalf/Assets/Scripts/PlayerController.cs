@@ -86,18 +86,22 @@ public class PlayerController : MonoBehaviour
 
         }
 
+        //If the player presses space, they are able to dash and aren't already dashing...
         if (Input.GetKey(KeyCode.Space) && canDash && !isDashing)
         {
 
+            //Start the dash.
             isDashing = true;
             canDash = false;
-            Vector3 newDashVector = new Vector3();
+            Vector3 newDashVector = new Vector3(); //Set a direction for the dash.
 
             RaycastHit2D hitRight = Physics2D.Raycast(transform.position, Vector3.right, 1f, groundLayer);
             RaycastHit2D hitLeft = Physics2D.Raycast(transform.position, Vector3.left, 1f, groundLayer);
 
+            //Set horizontal dash direction.
             newDashVector.x = playerInput.x;
 
+            //Do not allow the player to dash left or right if they are next to a wall.
             if (newDashVector.x > 0 && hitRight)
             {
 
@@ -112,8 +116,10 @@ public class PlayerController : MonoBehaviour
 
             }
 
+            //Reset dash timer.
             dashTimeCurrent = dashTime;
 
+            //Set vertical dash direction of W is pressed.
             if (Input.GetKey(KeyCode.W))
             {
 
@@ -121,6 +127,7 @@ public class PlayerController : MonoBehaviour
 
             }
 
+            //Adjust horizontal dash speed to be more in line with vertical dash.
             if(newDashVector.y == 0)
             {
 
@@ -166,9 +173,12 @@ public class PlayerController : MonoBehaviour
 
         }
 
+        //Wall checkers for wall jumping.
         RaycastHit2D hitRight = Physics2D.Raycast(transform.position, Vector3.right, 1f, groundLayer);
         RaycastHit2D hitLeft = Physics2D.Raycast(transform.position, Vector3.left, 1f, groundLayer);
 
+        //If a raycast hits a wall, jump and set the horizontal speed of the player to max left or right velocity, depending on
+        //where the wall is located relative to the player.
         if (hitRight)
         {
 
@@ -199,6 +209,7 @@ public class PlayerController : MonoBehaviour
 
         }
 
+        //Horizontal Movement
         if (playerInput.x < 0)
         {
 
@@ -217,6 +228,7 @@ public class PlayerController : MonoBehaviour
 
         }      
 
+        //Slows the player to a halt if no horizontal movement buttons are being pressed.
         if (!moveKeyDown)
         {
 
@@ -270,9 +282,9 @@ public class PlayerController : MonoBehaviour
 
             }
 
-        }
-     
+        }    
 
+        //Terminal velocity application for up and down.
         if(velocity.y <= -terminalVelocity)
         {
 
@@ -286,6 +298,7 @@ public class PlayerController : MonoBehaviour
         
         }
 
+        //Runs the Dash method and counts down the dash time.
         if (isDashing)
         {
 
@@ -295,6 +308,7 @@ public class PlayerController : MonoBehaviour
 
         }       
 
+        //Stops dashing if the player is no longer dashing.
         if(isDashing && dashTimeCurrent <= 0)
         {
 
@@ -323,9 +337,11 @@ public class PlayerController : MonoBehaviour
     public bool IsGrounded()
     {
 
+        //If the boxcast at the players feet is touching the ground layer...
         if (Physics2D.BoxCast(transform.position, Vector2.one * 0.8f, 0f, Vector3.down, 0.27f, groundLayer)) 
         {
 
+            //Reset jump, dash, coyote time and return true.
             Debug.DrawLine(transform.position, (Vector3.down * 0.8f) + transform.position, Color.green);
             canJump = true;
             canDash = true;
@@ -336,6 +352,7 @@ public class PlayerController : MonoBehaviour
         else
         {
 
+            //Otherwise count down the players coyote time and return false.
             Debug.DrawLine(transform.position, (Vector3.down * 0.8f) + transform.position, Color.red);
             coyoteTimeCurrent -= Time.deltaTime;
             return false;
@@ -344,6 +361,7 @@ public class PlayerController : MonoBehaviour
 
     }
 
+    //Sets the Y velocity of the character to zero if they hit the roof of something.
     private void HitHeadCheck()
     {
 
@@ -359,12 +377,13 @@ public class PlayerController : MonoBehaviour
     public bool CanJump()
     {
 
+        //If the player isn't grounded but they still have coyote time...
         if(!IsGrounded() && coyoteTimeCurrent > 0)
         {
 
             return true;
 
-        }else if (IsGrounded())
+        }else if (IsGrounded()) //...or the player is grounded.
         {
 
             return true;
@@ -398,6 +417,7 @@ public class PlayerController : MonoBehaviour
     public void DashMove()
     {
 
+        //Apply a constant force to the player so long as the player is logged as dashing.
         if(dashTimeCurrent >= dashTime)
         {
 
@@ -418,27 +438,35 @@ public class PlayerController : MonoBehaviour
 
         Debug.DrawLine(transform.position, position2D - transformToMousePos, Color.yellow);
 
+        //When left clicking if there is no ball...
         if (Input.GetMouseButton(0) && activeTeleBall == null)
         {
 
+            //Spawn a new ball and set it as the active ball.
             activeTeleBall = GameObject.Instantiate(teleBall, transform.position, Quaternion.identity);
 
+            //Get its script.
             TeleBallScript tbScript = activeTeleBall.GetComponent<TeleBallScript>();
 
+            //Initialize.
             tbScript.InitializeBall(-(transformToMousePos * throwForce), 5);
 
         }
 
+        //When right clicking if a ball is active...
         if (Input.GetMouseButton(1) && activeTeleBall != null)
         {
 
+            //Get the ball's position.
             Vector2 teleportPos = activeTeleBall.transform.position;
 
+            //Check for potential clipping.
             RaycastHit2D hitRight = Physics2D.Raycast(transform.position, Vector3.right, 1f, groundLayer);
             RaycastHit2D hitLeft = Physics2D.Raycast(transform.position, Vector3.left, 1f, groundLayer);
             RaycastHit2D hitTop = Physics2D.Raycast(transform.position, Vector3.up, 1f, groundLayer);
             RaycastHit2D hitBottom = Physics2D.Raycast(transform.position, Vector3.down, 1f, groundLayer);
 
+            //Resolve as needed.
             if (hitRight)
             {
 
@@ -467,6 +495,7 @@ public class PlayerController : MonoBehaviour
 
             }
 
+            //Apply transform and kill the ball.
             transform.position = teleportPos;
 
             Destroy(activeTeleBall);
